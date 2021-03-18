@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="zzxkj.blog.dao.BlogDao">
+
+    <resultMap id="User" type="zzxkj.blog.pojo.User">
+        <id property="id" column="id"/>
+        <result property="nickname" column="nickname"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="avatar" column="avatar"/>
+    </resultMap>
+
+    <resultMap id="blog" type="zzxkj.blog.dto.BlogQuery">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="recommend" column="recommend"/>
+        <result property="typeId" column="type_id"/>
+        <result property="published" column="published"/>
+        <association property="type" javaType="zzxkj.blog.pojo.Type">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+        </association>
+    </resultMap>
+    <select id="getAllBlogQuery" resultMap="blog">
+        select b.id,b.title,b.update_time,b.recommend,b.published,b.type_id,t.id,t.name from t_blog b left outer join
+        t_type t on b.type_id = t.id order by b.update_time desc
+    </select>
+
+    <delete id="deleteBlog">
+        delete from t_blog where id = #{id}
+    </delete>
+
+    <delete id="deleteBlogAndTag" >
+        delete from t_blog_tags where blog_id = #{blogId}
+    </delete>
+
+    <insert id="saveBlog" parameterType="zzxkj.blog.pojo.Blog">
+        insert into t_blog (id,title, content, first_picture, flag,
+        views, appreciation, share_statement, commentable,published,
+        recommend, create_time, update_time, type_id, user_id, description)
+        values (#{id},#{title},#{content},#{firstPicture},#{flag},#{views},#{appreciation},
+        #{shareStatement},#{commentable},#{published},#{recommend},#{createTime},
+        #{updateTime},#{typeId},#{userId},#{description});
+    </insert>
+
+    <insert id="saveBlogAndTag" parameterType="zzxkj.blog.dto.BlogAndTag">
+        insert into t_blog_tags (tags_id, blogs_id) values (#{tagId},#{blogId});
+    </insert>
+
+    <select id="searchByTitleOrTypeOrRecommend" parameterType="zzxkj.blog.dto.SearchBlog" resultMap="blog">
+        <bind name="pattern" value="'%' + title + '%'" />
+        select b.id,b.title,b.update_time,b.recommend,b.type_id,t.id,t.name from t_blog b ,t_type t
+        <where>
+            <if test="1 == 1">
+                b.type_id = t.id
+            </if>
+            <if test="typeId != null">
+                and b.type_id = #{typeId}
+            </if>
+            <if test="recommend2 != null">
+                and b.recommend = #{recommend2}
+            </if>
+            <if test="title != null">
+                and b.title like #{pattern}
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="showBlog" type="zzxkj.blog.dto.ShowBlog">
+        <id property="id" column="id"/>
+        <result property="published" column="published"></result>
+        <result property="flag" column="flag"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="typeId" column="type_id"></result>
+        <result property="firstPicture" column="first_picture"/>
+        <result property="description" column="description"></result>
+        <result property="recommend" column="recommend"></result>
+        <result property="shareStatement" column="share_statement"/>
+        <result property="appreciation" column="appreciation"/>
+        <result property="commentable" column="commentable"/>
+        <result property="updateTime" column="update_time"/>
+
+        <collection property="type" ofType="zzxkj.blog.pojo.Type">
+            <id property="id" column="tid"/>
+            <result property="name" column="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="getBlogById" resultMap="showBlog" >
+		 select b.id,b.published,b.flag,b.title,b.content,b.type_id,
+         b.first_picture,b.description,b.recommend,b.share_statement,
+         b.appreciation,b.commentable ,t.id tid,t.name from t_blog b inner join
+         t_type t on b.type_id = t.id and b.id = #{id}
+    </select>
+
+    <update id="updateBlog" parameterType="zzxkj.blog.pojo.Blog">
+        update t_blog set published = #{published},flag = #{flag} ,
+        title = #{title}, content = #{content}, type_id = #{typeId},
+        first_picture = #{firstPicture} , description = #{description} , recommend = #{recommend} ,
+        share_statement = #{shareStatement}, appreciation = #{appreciation},
+        commentable = #{commentable} ,update_time = #{updateTime} where id = #{id};
+    </update>
+    
+
+    <resultMap id="firstPageBlog" type="zzxkj.blog.dto.FirstPageBlog">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="firstPicture" column="first_picture"/>
+        <result property="views" column="views"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="description" column="description"/>
+        <result property="typeName" column="name"/>
+        <collection property="user" ofType="zzxkj.blog.pojo.User">
+            <id property="id" column="user_id"></id>
+            <result property="type" column="type"></result>
+            <result property="email" column="email"></result>
+            <result property="avatar" column="avatar"></result>
+            <result property="username" column="username"></result>
+            <result property="password" column="password"></result>
+            <result property="nickname" column="nickname"></result>
+            <result property="createTime" column="create_time"></result>
+            <result property="updateTime" column="update_time"></result>
+        </collection>
+
+    </resultMap>
+
+    <select id="getFirstPageBlog" resultMap="firstPageBlog">
+        select b.id,b.title,b.first_picture, b.views,b.update_time,b.description,
+        t.name ,
+        u.id as user_id, u.type,u.email,u.avatar,u.username,u.password,u.nickname,u.create_time,u.update_time
+        from t_blog b, t_type t,t_user u
+        where b.type_id = t.id and  u.id = b.user_id order by b.update_time desc
+    </select>
+
+    <select id="getAllRecommendBlog" resultType="zzxkj.blog.dto.RecommendBlog">
+        select id,title,recommend from t_blog;
+    </select>
+
+
+    <select id="getSearchBlog" resultMap="firstPageBlog">
+        <bind name="pattern" value="'%' + query + '%'" />
+        SELECT
+        b.id,
+        b.appreciation,
+        b.commentable,
+        b.content,
+        b.create_time,
+        b.description,
+        b.first_picture,
+        b.flag,
+        b.published,
+        b.recommend,
+        b.share_statement,
+        b.title,
+        b.type_id,
+        b.update_time,
+        b.user_id,
+        b.views,
+        u.id as user_id, u.type,u.email,u.avatar,u.username,u.password,u.nickname,u.create_time,u.update_time
+        FROM
+        t_blog b, t_type t,t_user u
+        where b.type_id = t.id and  u.id = b.user_id and
+        (b.title LIKE #{pattern}
+        OR b.content LIKE #{pattern}  )
+        ORDER BY
+        b.update_time DESC
+    </select>
+
+    <resultMap id="detailedBlog" type="zzxkj.blog.dto.DetailedBlog">
+        <id property="id" column="bid"/>
+        <result property="firstPicture" column="first_picture"/>
+        <result property="flag" column="flag"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="views" column="views"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="commentable" column="commentable"/>
+        <result property="shareStatement" column="share_statement"/>
+        <result property="appreciation" column="appreciation"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatar" column="avatar"/>
+        <collection property="tags" ofType="zzxkj.blog.pojo.Tag">
+            <id property="id" column="tid"/>
+            <result property="name" column="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="getDetailedBlog" resultMap="detailedBlog">
+        select b.id bid,b.first_picture,b.flag,b.title,b.content,b.views,b.update_time,b.commentable,b.share_statement,b.appreciation, u.nickname,u.avatar,
+        t.id tid ,t.name
+        from t_blog b,t_user u,t_tag t,t_blog_tags tb
+        where b.user_id = u.id and tb.blogs_id = b.id and tb.tags_id = t.id and  b.id = #{id}
+    </select>
+
+    <select id="getByTypeId" resultMap="firstPageBlog">
+        select b.id,b.title,b.first_picture, b.views,b.update_time,b.description,
+        t.name ,
+        u.id as user_id, u.type,u.email,u.avatar,u.username,u.password,u.nickname,u.create_time,u.update_time
+        from t_blog b, t_type t,t_user u
+        where b.type_id = t.id and u.id = b.user_id and b.type_id = #{typeId} order by b.update_time desc
+    </select>
+
+    <select id="getByTagId" resultMap="firstPageBlog">
+        select b.id,b.title,b.first_picture,b.views,b.update_time,b.description,
+        t.name,
+        u.id as user_id, u.type,u.email,u.avatar,u.username,u.password,u.nickname,u.create_time,u.update_time
+        from t_blog b,t_type t,t_user u ,t_blog_tags tb,t_tag t1
+        where b.type_id = t.id and u.id = b.user_id and tb.blogs_id = b.id and tb.tags_id = t1.id and t1.id = #{tagId}
+        order by b.update_time desc
+    </select>
+    <select id="findGroupYear" resultType="java.lang.String">
+        select date_format(b.update_time, '%Y') as year from t_blog b group by date_format(b.update_time, '%Y') order by year desc
+    </select>
+    <select id="findByYear" resultMap="detailedBlog">
+        select b.id bid,b.first_picture,b.flag,b.title,b.content,b.views,b.update_time,b.commentable,b.share_statement,b.appreciation, u.nickname,u.avatar,
+        t.id tid ,t.name
+        from t_blog b,t_user u,t_tag t,t_blog_tags tb
+        where b.user_id = u.id and tb.blogs_id = b.id and tb.tags_id = t.id and  date_format(b.update_time, '%Y') = #{year};
+    </select>
+    <select id="countBlog" resultType="java.lang.Long">
+        select count(1) from t_blog;
+    </select>
+    <select id="listRecommendBlogTop" resultType="zzxkj.blog.dto.RecommendBlog">
+               select id,title,recommend from t_blog limit #{size};
+    </select>
+    <update id="IncreaseView">
+          update t_blog b set b.views = b.views+1 where b.id = #{id};
+    </update>
+
+</mapper>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="zzxkj.blog.dao.TagDao">
+
+    <select id="getById" resultType="zzxkj.blog.pojo.Tag">
+        select * from t_tag where id = #{id}
+    </select>
+
+    <insert id="saveBlogTags">
+        insert into t_blog_tags(`blogs_id`, `tags_id`) values (#{blogsId}, #{tagsId})
+    </insert>
+
+    <insert id="saveTag" parameterType="zzxkj.blog.pojo.Tag">
+        insert into t_tag values (#{id},#{name})
+    </insert>
+
+    <select id="getByName" resultType="zzxkj.blog.pojo.Tag">
+        select * from t_tag where name = #{name}
+    </select>
+
+    <resultMap id="tags" type="zzxkj.blog.pojo.Tag">
+        <id property="id" column="tid"/>
+        <result property="name" column="name"/>
+        <collection property="blogs" ofType="zzxkj.blog.pojo.Blog">
+            <id property="id" column="bid"/>
+            <result property="title" column="title"/>
+        </collection>
+    </resultMap>
+
+    <select id="getAllTag" resultMap="tags">
+        select t.id tid,t.name,b.id bid,b.title from t_tag t,t_blog b, t_blog_tags bt
+        where t.id = bt.tags_id and b.id = bt.blogs_id
+    </select>
+
+    <select id="getAdminTag" resultType="zzxkj.blog.pojo.Tag">
+        select * from t_tag
+    </select>
+    <select id="listTagTop" resultType="zzxkj.blog.pojo.Tag">
+        select * from t_tag limit #{size}
+    </select>
+
+    <select id="getTagsByBlogId" resultType="zzxkj.blog.pojo.Tag">
+        SELECT t.id, t.`name` from t_tag t where t.id in (SELECT tags_id FROM `t_blog_tags` as bt where bt.blogs_id = #{id})
+    </select>
+
+    <delete id="deleteTag" >
+        delete from t_tag where id = #{id}
+    </delete>
+
+    <update id="updateTag" parameterType="zzxkj.blog.pojo.Tag">
+        update t_tag set name = #{name} where id = #{id};
+    </update>
+
+
+</mapper>

@@ -1,0 +1,25 @@
+spring:
+  thymeleaf:
+    mode: HTML
+    cache: false
+  servlet:
+    content-type: text/html
+  profiles:
+    active: dev
+
+#评论的头像
+comment.avatar: /images/girl.jpg
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.gao.pojo
+  configuration:
+    map-underscore-to-camel-case: true
+
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+

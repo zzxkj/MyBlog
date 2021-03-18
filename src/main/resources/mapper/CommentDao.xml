@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="zzxkj.blog.dao.CommentDao">
+
+    <insert id="saveComment" parameterType="zzxkj.blog.pojo.Comment">
+        insert into t_comment (nickname,email,content,avatar,create_time,blog_id,parent_comment_id,admin_comment)
+        values (#{nickname},#{email},#{content},#{avatar},#{createTime},#{blogId},#{parentCommentId},#{adminComment});
+    </insert>
+
+
+               
+    <select id="findByBlogIdParentIdNull" resultType="zzxkj.blog.pojo.Comment">
+        select c.id,c.nickname,c.email,c.content,c.avatar,c.create_time,c.blog_id,c.parent_comment_id,c.admin_comment
+        from t_comment c
+        where c.blog_id = #{blogId} and c.parent_comment_id is null
+        order by c.create_time desc
+    </select>
+
+    <select id="findByBlogId" resultType="zzxkj.blog.pojo.Comment">
+        select c.id,c.nickname,c.email,c.content,c.avatar,c.create_time,c.blog_id,c.parent_comment_id,c.admin_comment
+        from t_comment c where c.blog_id = #{blogId} order by c.create_time desc
+    </select>
+    <select id="findByCommentId" resultType="zzxkj.blog.pojo.Comment">
+        select c.id,c.nickname,c.email,c.content,c.avatar,c.create_time,c.blog_id,c.parent_comment_id,c.admin_comment
+        from t_comment c where c.id = #{id} order by c.create_time desc limit 1
+    </select>
+    <select id="listTopCommentByBlogId" resultType="zzxkj.blog.pojo.Comment">
+        select c.id,c.nickname,c.email,c.content,c.avatar,c.create_time,c.blog_id,c.parent_comment_id,c.admin_comment
+        from t_comment c where c.blog_id = #{blogId} and c.parent_comment_id is null  order by c.create_time desc
+    </select>
+    <select id="listChildCommentByBlogId" resultType="zzxkj.blog.pojo.Comment">
+        select c.id,c.nickname,c.email,c.content,c.avatar,c.create_time,c.blog_id,c.parent_comment_id,c.admin_comment
+        from t_comment c where c.parent_comment_id = #{parentId} order by c.create_time desc
+    </select>
+
+</mapper>

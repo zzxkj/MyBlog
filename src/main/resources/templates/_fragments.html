@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="${title}">博客详情</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.css">
+    <link rel="stylesheet" href="../static/css/typo.css" th:href="@{/css/typo.css}">
+    <link rel="stylesheet" href="../static/css/animate.css" th:href="@{/css/animate.css}">
+    <link rel="stylesheet" href="../static/lib/prism/prism.css" th:href="@{/lib/prism/prism.css}">
+    <link rel="stylesheet" href="../static/lib/tocbot/tocbot.css" th:href="@{/lib/tocbot/tocbot.css}">
+    <link rel="stylesheet" href="../static/css/me.css" th:href="@{/css/me.css}">
+</head>
+<body>
+<!--搜索框-->
+<div th:fragment="search" class="right m-item item m-mobile-hide">
+    <form name="search" action="#" th:action="@{/search}" method="post" target="_blank">
+        <div class="ui icon transparent input m-margin-tb-tiny">
+            <input type="text" name="query" placeholder="请输入关键字..." th:value="${query}">
+            <i onclick="document.forms['search'].submit()" class="search link icon" style="color: #ff5a56"></i>
+        </div>
+    </form>
+</div>
+
+<div class="three wide column" th:fragment="newblogList">
+    <div id="newblog-container">
+        <h4 class="ui inverted header m-text-thin m-text-spaced " style="color: #ff5a56"><strong>最新博客</strong></h4>
+        <div class="ui inverted link list">
+            <a href="#" th:href="@{/blog/{id}(id=${blog.id})}" target="_blank" class="item common"
+               th:each="blog:${newblogs}" th:text="${blog.title} ">自学要趁早</a>
+            <!--/*-->
+            <a href="#" class="item">跟着计划走</a>
+            <a href="#" class="item">早学早牛逼</a>
+            <!--*/-->
+        </div>
+    </div>
+</div>
+</body>
+</html>
